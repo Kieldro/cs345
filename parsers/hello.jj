@@ -1,0 +1,33 @@
+/* adder.jj Adding up numbers */
+options {
+	STATIC = false;
+}
+
+PARSER_BEGIN(hello)	
+	class hello {		// not public in javacc tutorial
+		public static void main( String[] args ) throws ParseException, TokenMgrError {
+			hello parser = new hello( System.in );
+			System.out.println("Calling foo()...");
+			parser.foo();
+		}
+	}
+
+PARSER_END(hello)
+
+SKIP:{
+	" "		// skip spaces
+}
+
+TOKEN:{
+	<CHAR: "a">
+}
+
+void foo():		// first function executed
+{
+	Token t;
+}
+
+{
+	t = <CHAR>
+	{System.out.println("CHAR consumed : " + t.image);}		// action
+}
