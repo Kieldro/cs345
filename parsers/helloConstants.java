@@ -9,7 +9,7 @@ public interface helloConstants {
   /** End of File. */
   int EOF = 0;
   /** RegularExpression Id. */
-  int CHAR = 2;
+  int CHAR = 4;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -18,6 +18,8 @@ public interface helloConstants {
   String[] tokenImage = {
     "<EOF>",
     "\" \"",
+    "\"\\t\"",
+    "\"\\n\"",
     "\"a\"",
   };
 

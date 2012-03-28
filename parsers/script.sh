@@ -8,6 +8,7 @@ if true; then
 fi
 
 echo generating parser files from .jj file...
+# java boiler-plate files only produced if they don't already exist?
 javacc $file
 
 echo compiling java files...
