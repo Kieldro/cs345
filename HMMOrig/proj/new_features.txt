@@ -1,0 +1,103 @@
+-------------------------
+--  List comprehension 
+--------------------------
+
+[ expr | (generator | conditional)*]
+
+generator: (variable | tuple) <- listExpr
+
+TARGET VARIABLE: Any or all variables within the 'generator' tuples.
+
+Rules:
+  - The 'listExpr' must evaluate to the List type.
+  - The 'conditional' must evaluate to the boolean type.
+  - The TARGET VARIABLES are assumed to be implicitly defined by
+    the List comprehension, so they must NOT be declared beforehand.
+  - The "_" variables will be replaced with "$N", where N is a unique number.
+  
+  
+
+---------------------------
+- Additional types
+---------------------------
+TYPES:   string | int | boolean | float | void | list | tuple | object
+
+RULES:
+  (1) Anything can be converted into an object.
+  (2) Apart from (1), no explicit or implicit type conversion for the following:
+      - string
+      - boolean
+      - list
+      - tuple
+      
+  (3) int/float are the only types that can be converted to each other.
+  
+  (4) When list/tuple are not initialized, they are assumed to be an empty list/tuple.
+      
+-------------------------------
+- Arithmetic on 'object' types
+-------------------------------
+
+The type of the objects (int/float) will be determined at 
+the runtime and so will the expression be converted.
+      
+      
+      
+-----------------------------
+- Lambda expressions
+-----------------------------
+(\ (var ,)* -> expression)
+
+  - The arguments are implicitly assumed to be objects, so they
+     must NOT be defined within the function.
+  - The expression is bound to the variables in the context where the Lambda is defined.
+    -- The Lambda function is passed together with Lambda Context, that will
+       contain the values of such variables. Such variables will NOT be fetched from the stack!
+  
+  
+----------------------------
+- Other Semantic Rules
+----------------------------
+* Make sure the Global Variable type is not 'void' (can't enforce it by the grammar).
+* Make sure the second argument in the Generator is a list.
+
+
+-------------------------------------
+-- Local Variable handling and rules
+-------------------------------------
+* SCOPING: The scoping is done on the granularity of:
+    - Blocks
+    - Within a given List Comprehension.
+    - Within a given Lambda Expression
+    
+* The scope of a variable declared in a block is all the 
+      subsequent statements of that block AND nested blocks.
+      
+* HIDING: A local variable can hide a global, but can NOT hide a local
+  variable. It is an error to define two local variables with the same name,
+  even if they are defined in different blocks.
+
+-------------------------------------
+-- Lambda (function) handling
+-------------------------------------
+Within the lambda definition, the Symbol Table will
+be in the Lambda state:
+ - Every definition will go into the Lambda context
+ - Every variable use will:
+    - If refers to the lambda-defined variable, then it will simply be assigned
+      its address in the lambda context.
+    - If not, then a NEW address in the Lambda context will be created and it
+      will be linked to a real variable.
+
+RULE: The variables in the NESTED lambdas are not allowd to refer to the outer lambda's variables.
+
+At the end, each Lambda Definition will be assigned a number equal to its context size.
+
+There are 4 types of calls:
+ * Regular functions
+ * Built-in functions.
+ * Lambda direct call
+ * Lambda indirect call (through the variable)
+ 
+For ALL, except the built-in function, we need to check
+for the existence and perform the signature check.

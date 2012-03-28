@@ -1,0 +1,126 @@
+-----------------------------
+---  ABSTRACT SYNTAX
+-----------------------------
+
+Program       = Delcaraion* globals; Function* functions;
+
+Declaration   = Variable variabe; Type type; [Expression initValue;]
+
+Type          = BaseType | FunctionType
+
+FunctionType  = Type* paramTypes; Type returnType;
+
+BaseType      = int | bool | float | void | string | list | tuple | object
+
+
+Function      = Type type; String name; Declaration* params; Block body;
+
+Block         = Statement* members;
+
+Statement     = DeclContainer | Assignment | Block | Conditional | 
+                Expression | ForEach | Loop | Return 
+
+DeclContainer = Declaration* declarations;
+
+Assignment    = LValue target; Expression source;
+
+LValue        = ListTupleReference | Variable;
+
+Conditional   = Expression test; Statement thenbranch; Statement elsebranch;
+
+Loop          = Expression test; Statement body;
+
+ForEach       = Generator gen; Statement body;
+
+Return        = [Variable functionReturnVar; Expression result;]
+
+
+Expression    = Binary | Call | LambdaDef | ListComprehension | 
+                ListTupleExpression | ListTupleReference | 
+                Unary | Value | Variable
+
+Variable      = String name;
+
+Value         = BoolValue | FloatValue | IntValue | ListValue | StringValue | TupleValue
+
+ListValue     = Expression* members;
+TupleValue    = Expression* members;
+
+BoolValue, FloatValue, IntValue, StringValue: incapsulate the corresponding type.
+
+Unary         = UnaryOp  op; Expression term;
+Binary        = BinaryOp op; Expression term1; Expression term2;
+
+UnaryOp       = ! | -
+BinaryOp      = && | '||' | < | <= | == | != | > | >= | + | - | * | / | % 
+
+ListTupleReference  = Variable listVar; Expression index;
+
+ListTupleExpression = boolean isTuple; Expression* members;
+
+ListComprehension = Generator *generators; Expression* conditionals; Expression target;
+
+Generator         = VariableGenerator | TupleGenerator
+VariableGenerator = Variable  var;  Expression list;
+TupleGenerator    = Variable* vars; Expression list;
+
+LambdaDef         = Variable *vars; Expression target;
+
+Call              =   String name; Expression* args;      // Regular and built-in function calls
+                    | Variable var; Expression* args;     // Indirect Lambda call
+                    | LambdaDef lambda; Expression* args; // Direct Lambda call.
+
+
+
+-----------------------------
+----  CONCRETE SYNTAX (NOT FINISHED AND OUT OF DATE)
+-----------------------------
+
+Program         -> {Declaration | Function}
+
+Function        -> {Type ID '('[Argument {,Argument}]')' Block}
+
+Block           -> { '{' Statement '}' }
+
+Statement       ->   ;
+                   | Block
+                   | Declaration
+                   | Assignment
+                   | IfStatement
+                   | WhileStatement
+                   | ForStatement
+                   | ReturnStatement
+                   | Call ';'
+                   
+Assignment      -> Identifier['[' Expression ']'] = Expression ';'
+
+IfStatement     -> if Expression Block [else Block]
+
+WhileStatement  -> while Expression Block
+
+ForStatement    -> for '(' ID '<-' Expression ')' Block
+                
+ReturnStatement -> return Expression;
+Call            -> ID '('[Expression {',' Expression}]')'
+
+// Expression: Our main thing
+Expression 
+.............
+
+Primary         ->   Identifier['[' Expression ']']
+                   | Literal
+                   | List
+                   | Tuple
+                   | '(' Expression ')'
+                   | Type '(' Expression ')'
+                   | Call
+
+// Declarations:
+Declaration     -> Type ID [= expression] {',' ID [= expression]} ;
+Argument        -> Type ID
+
+
+// Types:
+Type            -> BaseType | FunctionType
+FunctionType    -> (BaseType ',')* BaseType
+BaseType        -> string | int | boolean | float | void | list | tuple | object

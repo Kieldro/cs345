@@ -1,0 +1,15 @@
+How to run:
+
+add this line to .bashrc: export JAVACC_HOME=/usr/share/java
+cd into proj folder and run: ant
+execute: source hmm.sh factorial.c
+
+TO DO:
+implement:
+	- inheritance/interfaces/overloading
+	- regular expressions built in
+	- for loops
+	- ternary operator
+	- multiline comments
+	- 1 line (bracketless) loops/if/else statements
+	- increment operators
