@@ -9,7 +9,19 @@ public interface helloConstants {
   /** End of File. */
   int EOF = 0;
   /** RegularExpression Id. */
-  int CHAR = 4;
+  int CHAR = 6;
+  /** RegularExpression Id. */
+  int NUM = 7;
+  /** RegularExpression Id. */
+  int PLUS = 8;
+  /** RegularExpression Id. */
+  int MINUS = 9;
+  /** RegularExpression Id. */
+  int MULT = 10;
+  /** RegularExpression Id. */
+  int DIV = 11;
+  /** RegularExpression Id. */
+  int DIGITS = 12;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -20,7 +32,15 @@ public interface helloConstants {
     "\" \"",
     "\"\\t\"",
     "\"\\n\"",
+    "\"\\r\"",
+    "\"\\r\\n\"",
     "\"a\"",
+    "<NUM>",
+    "\"+\"",
+    "\"-\"",
+    "\"*\"",
+    "\"/\"",
+    "<DIGITS>",
   };
 
 }

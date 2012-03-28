@@ -16,25 +16,43 @@ PARSER_BEGIN(hello)
 
 PARSER_END(hello)
 
-SKIP:{
-	" "		// skip spaces
+// specifications for token manager/ lexical anylizer/ tokenizer
+SKIP: {
+	  " "		// skip spaces
 	| "\t"
 	| "\n"
+	| "\r"
+	| "\r\n"
 }
 
 // maximal munch rule will use the longest token
-TOKEN:{
-	<CHAR: "a">
+TOKEN: {
+	  < CHAR:	"a">
+	| < NUM:	<DIGITS> | <DIGITS> "." <DIGITS> | <DIGITS> "." | "." <DIGITS> >
+	| < PLUS:	"+">
+	| < MINUS:	"-">
+	| < MULT:	"*">
+	| < DIV:	"/">
 }
+
+// local tokens
+TOKEN: { < #DIGITS : (["0"-"9"])+ > }
 
 void foo():		// first function executed
-{
-	Token t;
+{		// variable declariations
+	Token t, t1;
+	double value;
 }
 
-{
+{		// BNF production rules
 	(
-		t = <CHAR>
-		{if(DEBUG)System.out.println("CHAR consumed : " + t.image);}	// action
-	)*
+		t = <NUM>
+		{
+			if(DEBUG)System.out.println("NUM consumed : " + t.image);
+			value = Double.parseDouble(t.image);
+		}	// action
+		(<PLUS> t = <NUM> {value += Double.parseDouble(t.image);})*
+	)+
+	
+	{if(DEBUG)System.out.println("value = " + value);}
 }
