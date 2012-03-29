@@ -1,4 +1,4 @@
-/* hello.jj is fun */
+/* hello, Colleagues.*/
 options {
 	STATIC = false;
 }
@@ -9,23 +9,24 @@ PARSER_BEGIN(hello)
 		// not public in javacc tutorial
 		public static void main( String[] args ) throws ParseException, TokenMgrError {
 			hello parser = new hello( System.in );
-			if (DEBUG) System.out.println("Calling foo()...");
-			parser.foo();
+			if (DEBUG) System.out.println("Calling program()...");
+			parser.program();
 		}
 	}
 
 PARSER_END(hello)
 
 // specifications for token manager/ lexical anylizer/ tokenizer
+
 SKIP: {
-	  " "		// skip spaces
+	  " "		// ignore spaces
 	| "\t"
 	| "\n"
 	| "\r"
 	| "\r\n"
 }
 
-// maximal munch rule will use the longest token
+// "maximal munch" rule will use the longest token
 TOKEN: {
 	  < CHAR:	"a">
 	| < NUM:	<DIGITS> | <DIGITS> "." <DIGITS> | <DIGITS> "." | "." <DIGITS> >
@@ -33,26 +34,128 @@ TOKEN: {
 	| < MINUS:	"-">
 	| < MULT:	"*">
 	| < DIV:	"/">
+	| < LPAR:	"(">
+	| < RPAR:	")">
+	| < SEMI:	";">
 }
 
 // local tokens
-TOKEN: { < #DIGITS : (["0"-"9"])+ > }
+TOKEN: { < #DIGITS : (["0"-"9"])+ > }		// 1 or more digits
 
-void foo():		// first function executed
-{		// variable declariations
-	Token t, t1;
-	double value;
+// program -> statement SEMI
+void program():		// first function called from main
+{
+	// variable declariations
+	Token t;
+	double result = 0;
 }
-
-{		// BNF production rules
+{
+	// BNF production rules
+	// order of operations: P E MD AS
 	(
-		t = <NUM>
+		(result = statement() <SEMI> | <SEMI>)
 		{
-			if(DEBUG)System.out.println("NUM consumed : " + t.image);
-			value = Double.parseDouble(t.image);
-		}	// action
-		(<PLUS> t = <NUM> {value += Double.parseDouble(t.image);})*
-	)+
-	
-	{if(DEBUG)System.out.println("value = " + value);}
+			if(DEBUG)System.out.println("program result = " + result);
+			result = 0;
+		}
+	)*
 }
+
+// statement -> expression ([PLUS | MINUS]expression)*
+double statement():
+{
+	Token t;
+	double result, i;
+}
+{
+	result = expression()
+	
+	(
+		t = <PLUS> i = expression()
+			{
+				if(DEBUG)System.out.println(result + " " + t + " " + i);
+				result += i;
+			}
+	
+		| t = <MINUS> i = expression()
+			{
+				if(DEBUG)System.out.println(result + " " + t + " " + i);
+				result += i;
+			}
+	)*
+	
+	{
+		if(DEBUG)System.out.println("statement = " + result);
+		return result;
+	}
+}
+
+// expression -> primary ([MULT | DIV]primary)*
+double expression():
+{
+	Token t;
+	double result, i;
+}
+{
+	result = primary()
+	(
+		  t = <MULT> i = primary()
+		  {
+			  if(DEBUG)System.out.println(result + " " + t + " " + i);
+			  result *= i;
+		  }
+		| t = <DIV> i = primary()
+		  {
+			  if(DEBUG)System.out.println(result + " " + t + " " + i);
+			  result /= i;
+		  }
+	)*
+	
+	{
+		if(DEBUG)System.out.println("expression = " + result);
+		return result;
+	}		// action
+}
+
+
+// primary -> term | LPAR statement RPAR
+double primary():
+{
+	Token t;
+	double result;
+	
+	
+}
+{
+	(result = term() | <LPAR> result = statement() <RPAR>)
+	{
+		if(DEBUG)System.out.println("primary = " + result);
+		return result;
+	}
+	
+	
+}
+
+
+// term -> NUM | MINUS statement | CHAR
+double term():
+{
+	Token t;
+	double result;
+}
+{
+	(
+		(t = <NUM> | t = <CHAR>)
+		{
+			result = Double.parseDouble(t.image);
+		}
+//		| <MINUS> result = statement() {result = -result;}
+	)
+	{
+		if(DEBUG)System.out.println(result + " term consumed");
+		return result;
+	}
+	
+	
+}
+

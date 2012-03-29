@@ -1,7 +1,7 @@
 echo Running script...
 
 file="hello.jj"
-input="input"
+input="input.c"
 
 if true; then
 	echo hello!

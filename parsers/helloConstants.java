@@ -21,7 +21,13 @@ public interface helloConstants {
   /** RegularExpression Id. */
   int DIV = 11;
   /** RegularExpression Id. */
-  int DIGITS = 12;
+  int LPAR = 12;
+  /** RegularExpression Id. */
+  int RPAR = 13;
+  /** RegularExpression Id. */
+  int SEMI = 14;
+  /** RegularExpression Id. */
+  int DIGITS = 15;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -40,6 +46,9 @@ public interface helloConstants {
     "\"-\"",
     "\"*\"",
     "\"/\"",
+    "\"(\"",
+    "\")\"",
+    "\";\"",
     "<DIGITS>",
   };
 

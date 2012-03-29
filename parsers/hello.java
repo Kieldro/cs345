@@ -4,43 +4,174 @@
                 // not public in javacc tutorial
                 public static void main( String[] args ) throws ParseException, TokenMgrError {
                         hello parser = new hello( System.in );
-                        if (DEBUG) System.out.println("Calling foo()...");
-                        parser.foo();
+                        if (DEBUG) System.out.println("Calling program()...");
+                        parser.program();
                 }
 
-  final public void foo() throws ParseException {
-                // variable declariations
-        Token t, t1;
-        double value;
+                                                // 1 or more digits
+
+// program -> statement SEMI
+  final public void program() throws ParseException {
+        // variable declariations
+        Token t;
+        double result = 0;
     label_1:
     while (true) {
-      t = jj_consume_token(NUM);
-                        if(DEBUG)System.out.println("NUM consumed : " + t.image);
-                        value = Double.parseDouble(t.image);
-      label_2:
-      while (true) {
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case PLUS:
-          ;
-          break;
-        default:
-          jj_la1[0] = jj_gen;
-          break label_2;
-        }
-        jj_consume_token(PLUS);
-        t = jj_consume_token(NUM);
-                                   value += Double.parseDouble(t.image);
-      }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case CHAR:
       case NUM:
+      case LPAR:
+      case SEMI:
         ;
         break;
       default:
-        jj_la1[1] = jj_gen;
+        jj_la1[0] = jj_gen;
         break label_1;
       }
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case CHAR:
+      case NUM:
+      case LPAR:
+        result = statement();
+        jj_consume_token(SEMI);
+        break;
+      case SEMI:
+        jj_consume_token(SEMI);
+        break;
+      default:
+        jj_la1[1] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+                        if(DEBUG)System.out.println("program result = " + result);
+                        result = 0;
     }
-         if(DEBUG)System.out.println("value = " + value);
+  }
+
+// statement -> expression ([PLUS | MINUS]expression)*
+  final public double statement() throws ParseException {
+        Token t;
+        double result, i;
+    result = expression();
+    label_2:
+    while (true) {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case PLUS:
+      case MINUS:
+        ;
+        break;
+      default:
+        jj_la1[2] = jj_gen;
+        break label_2;
+      }
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case PLUS:
+        t = jj_consume_token(PLUS);
+        i = expression();
+                                if(DEBUG)System.out.println(result + " " + t + " " + i);
+                                result += i;
+        break;
+      case MINUS:
+        t = jj_consume_token(MINUS);
+        i = expression();
+                                if(DEBUG)System.out.println(result + " " + t + " " + i);
+                                result += i;
+        break;
+      default:
+        jj_la1[3] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+    }
+                if(DEBUG)System.out.println("statement = " + result);
+                {if (true) return result;}
+    throw new Error("Missing return statement in function");
+  }
+
+// expression -> primary ([MULT | DIV]primary)*
+  final public double expression() throws ParseException {
+        Token t;
+        double result, i;
+    result = primary();
+    label_3:
+    while (true) {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case MULT:
+      case DIV:
+        ;
+        break;
+      default:
+        jj_la1[4] = jj_gen;
+        break label_3;
+      }
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case MULT:
+        t = jj_consume_token(MULT);
+        i = primary();
+                          if(DEBUG)System.out.println(result + " " + t + " " + i);
+                          result *= i;
+        break;
+      case DIV:
+        t = jj_consume_token(DIV);
+        i = primary();
+                          if(DEBUG)System.out.println(result + " " + t + " " + i);
+                          result /= i;
+        break;
+      default:
+        jj_la1[5] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+    }
+                if(DEBUG)System.out.println("expression = " + result);
+                {if (true) return result;}
+    throw new Error("Missing return statement in function");
+  }
+
+// primary -> term | LPAR statement RPAR
+  final public double primary() throws ParseException {
+        Token t;
+        double result;
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case CHAR:
+    case NUM:
+      result = term();
+      break;
+    case LPAR:
+      jj_consume_token(LPAR);
+      result = statement();
+      jj_consume_token(RPAR);
+      break;
+    default:
+      jj_la1[6] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+                if(DEBUG)System.out.println("primary = " + result);
+                {if (true) return result;}
+    throw new Error("Missing return statement in function");
+  }
+
+// term -> NUM | MINUS statement | CHAR
+  final public double term() throws ParseException {
+        Token t;
+        double result;
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case NUM:
+      t = jj_consume_token(NUM);
+      break;
+    case CHAR:
+      t = jj_consume_token(CHAR);
+      break;
+    default:
+      jj_la1[7] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+                        result = Double.parseDouble(t.image);
+                if(DEBUG)System.out.println(result + " term consumed");
+                {if (true) return result;}
+    throw new Error("Missing return statement in function");
   }
 
   /** Generated Token Manager. */
@@ -52,13 +183,13 @@
   public Token jj_nt;
   private int jj_ntk;
   private int jj_gen;
-  final private int[] jj_la1 = new int[2];
+  final private int[] jj_la1 = new int[8];
   static private int[] jj_la1_0;
   static {
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x100,0x80,};
+      jj_la1_0 = new int[] {0x50c0,0x50c0,0x300,0x300,0xc00,0xc00,0x10c0,0xc0,};
    }
 
   /** Constructor with InputStream. */
@@ -72,7 +203,7 @@
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 2; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 8; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -86,7 +217,7 @@
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 2; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 8; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -96,7 +227,7 @@
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 2; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 8; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -106,7 +237,7 @@
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 2; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 8; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -115,7 +246,7 @@
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 2; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 8; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -124,7 +255,7 @@
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 2; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 8; i++) jj_la1[i] = -1;
   }
 
   private Token jj_consume_token(int kind) throws ParseException {
@@ -175,12 +306,12 @@
   /** Generate ParseException. */
   public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[13];
+    boolean[] la1tokens = new boolean[16];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 8; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -189,7 +320,7 @@
         }
       }
     }
-    for (int i = 0; i < 13; i++) {
+    for (int i = 0; i < 16; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;
