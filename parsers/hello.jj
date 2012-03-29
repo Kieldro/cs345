@@ -1,4 +1,6 @@
-/* hello, Colleagues.*/
+/* hello, Colleagues.
+created by Ian Buitago Spring 2012
+*/
 options {
 	STATIC = false;
 }
@@ -21,9 +23,18 @@ PARSER_END(hello)
 SKIP: {
 	  " "		// ignore spaces
 	| "\t"
-	| "\n"
+	| <"\n">
 	| "\r"
 	| "\r\n"
+	| <"//" (~["\n","\r"])* ("\n"|"\r")>		// single line comments
+	| <"/*">: INSIDE_COMMENT		// multiline
+}
+
+<INSIDE_COMMENT>
+SKIP:
+{
+	  <"*/">: DEFAULT
+	| <~[]>		// skip everything
 }
 
 // "maximal munch" rule will use the longest token
@@ -37,10 +48,14 @@ TOKEN: {
 	| < LPAR:	"(">
 	| < RPAR:	")">
 	| < SEMI:	";">
+//	| < STR: (("\"" (~["\"","\n"])* "\"")>
 }
 
 // local tokens
-TOKEN: { < #DIGITS : (["0"-"9"])+ > }		// 1 or more digits
+TOKEN: {
+	  < #DIGITS : (["0"-"9"])+ >		// 1 or more digits
+}		
+// End of tokenizer.
 
 // program -> statement SEMI
 void program():		// first function called from main
@@ -53,7 +68,7 @@ void program():		// first function called from main
 	// BNF production rules
 	// order of operations: P E MD AS
 	(
-		(result = statement() <SEMI> | <SEMI>)
+		(result = statement() )? <SEMI>
 		{
 			if(DEBUG)System.out.println("program result = " + result);
 			result = 0;
@@ -117,14 +132,11 @@ double expression():
 	}		// action
 }
 
-
 // primary -> term | LPAR statement RPAR
 double primary():
 {
 	Token t;
 	double result;
-	
-	
 }
 {
 	(result = term() | <LPAR> result = statement() <RPAR>)
@@ -132,30 +144,25 @@ double primary():
 		if(DEBUG)System.out.println("primary = " + result);
 		return result;
 	}
-	
-	
 }
-
 
 // term -> NUM | MINUS statement | CHAR
 double term():
 {
 	Token t;
-	double result;
+	double result = 0;
 }
 {
 	(
-		(t = <NUM> | t = <CHAR>)
+		t = <NUM>
 		{
 			result = Double.parseDouble(t.image);
 		}
 //		| <MINUS> result = statement() {result = -result;}
+//		| t = <CHAR> | t = <STR>
 	)
 	{
-		if(DEBUG)System.out.println(result + " term consumed");
+		if(DEBUG)System.out.println(t + " term consumed");
 		return result;
 	}
-	
-	
 }
-

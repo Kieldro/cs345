@@ -9,28 +9,30 @@ public interface helloConstants {
   /** End of File. */
   int EOF = 0;
   /** RegularExpression Id. */
-  int CHAR = 6;
+  int CHAR = 10;
   /** RegularExpression Id. */
-  int NUM = 7;
+  int NUM = 11;
   /** RegularExpression Id. */
-  int PLUS = 8;
+  int PLUS = 12;
   /** RegularExpression Id. */
-  int MINUS = 9;
+  int MINUS = 13;
   /** RegularExpression Id. */
-  int MULT = 10;
+  int MULT = 14;
   /** RegularExpression Id. */
-  int DIV = 11;
+  int DIV = 15;
   /** RegularExpression Id. */
-  int LPAR = 12;
+  int LPAR = 16;
   /** RegularExpression Id. */
-  int RPAR = 13;
+  int RPAR = 17;
   /** RegularExpression Id. */
-  int SEMI = 14;
+  int SEMI = 18;
   /** RegularExpression Id. */
-  int DIGITS = 15;
+  int DIGITS = 19;
 
   /** Lexical state. */
   int DEFAULT = 0;
+  /** Lexical state. */
+  int INSIDE_COMMENT = 1;
 
   /** Literal token values. */
   String[] tokenImage = {
@@ -40,6 +42,10 @@ public interface helloConstants {
     "\"\\n\"",
     "\"\\r\"",
     "\"\\r\\n\"",
+    "<token of kind 6>",
+    "\"/*\"",
+    "\"*/\"",
+    "<token of kind 9>",
     "\"a\"",
     "<NUM>",
     "\"+\"",

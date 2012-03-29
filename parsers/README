@@ -1,5 +1,20 @@
+hello
+created by Ian Buitrago Spring 2012
+
+Hello, Colleagues.
+all .c files are used to test/demonstrate features
+
 run with:
 source script.sh
 
 questions:
 -what does ant do? are make files better?
+
+To do:
+- negation
+- strings
+
+features:
+- single/multi line comments, solo semis
+- strings
+- arithmetic
