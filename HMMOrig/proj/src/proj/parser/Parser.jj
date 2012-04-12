@@ -1,5 +1,5 @@
 // modified by Melissa Olson, Tanmaya Godbole, and Sriratana Sutasirisap - Spring 2011
-
+// modified by Ian Buitrago - Spring 2012
 options {
 STATIC = false ;
 }
@@ -116,17 +116,16 @@ Program Program() :
 {
    (
         (curTopLevelType = retType() curTopLevelToken = <IDENTIFIER>
-        (
-            decList = restOfGlobalDec() {globals.addAll(decList); } 
-            | f = restOfFunction()      { funcList.add(f); }
-        ))
+		    (
+		        decList = restOfGlobalDec() {globals.addAll(decList);} 
+		        | f = restOfFunction()      { funcList.add(f);}
+		    )
+        )
 	|c = myClass() {classList.add(c);}
         |o = obj() {objList.add(o);}
         
    )* 
-   {
-     return new Program(globals, funcList, classList, objList);
-   }
+   {return new Program(globals, funcList, classList, objList);}
 }
 
 MyClass myClass() :
