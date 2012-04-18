@@ -190,12 +190,14 @@ ObjFunction objFunc():
  }
 }      
 
+// Type IDENT
 Function restOfFunction() : 
 { Declaration d; Block b; List<Declaration> args = new ArrayList<Declaration>(); }
 {
 	<LPAREN>
 	 [ d = parameter() {args.add(d);} (<COMMA> d = parameter() {args.add(d);})*]
-	<RPAREN> b = block()
+	<RPAREN>
+	b = block()
 	{
 		return new Function(curTopLevelType, curTopLevelToken, args, b);
 	}

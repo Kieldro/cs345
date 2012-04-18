@@ -49,7 +49,7 @@ public class Interpreter {
     public void runProgram(Program prog)
         throws InterpreterRuntimeError
     {
-	this.prog = prog; //added later
+		this.prog = prog; //added later
         evaluateDeclarations(prog.getGlobals());
        
         // Shift the Base Pointer to the end of Globals:

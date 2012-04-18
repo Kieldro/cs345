@@ -5,7 +5,8 @@ int main () {
 	while(a > 0 && a < 5){
 		println("a = ", a);
 		//a++;
-		a += 1;
+		//a += 1;
+		a = a + 1;
 	}
 	//for(int i = 0; i < 3; i++)
 	//    println("FORLOOP i = ", i);
