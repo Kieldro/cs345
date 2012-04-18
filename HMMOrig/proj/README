@@ -1,15 +1,20 @@
-How to run:
+How to run on CS machines:
 
-add this line to .bashrc: export JAVACC_HOME=/usr/share/java
-cd into proj folder and run: ant
+run: source setEnv.sh
+or add these line to .bashrc: export JAVACC_HOME=/usr/share/java
+							export JAVA_HOME=/usr/lib/jvm/java-6-openjdk
+cd into proj folder and run: ant clean; ant
 execute: source hmm.sh factorial.c
 
 TO DO:
 implement:
 	- inheritance/interfaces/overloading
-	- regular expressions built in
+	- multiline comments
 	- for loops
 	- ternary operator
-	- multiline comments
 	- 1 line (bracketless) loops/if/else statements
 	- increment operators
+	- regular expressions built in
+	
+STATUS:
+	Trying to understand Hmm.java and parser.jj
