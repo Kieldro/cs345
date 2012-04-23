@@ -13,12 +13,12 @@ IMPLEMENTED FEATURES:
 
 TO DO:
 implement:
+	- ternary operator: type check/optokenpair
 	- inheritance/interfaces/overloading
 	- for loops
-	- ternary operator
 	- 1 line (bracketless) loops/if/else statements
-	- increment operators
 	- void type functions/ required return statement for main
+	- increment operators
 	
 STATUS:
 	Trying to understand Hmm.java and parser.jj

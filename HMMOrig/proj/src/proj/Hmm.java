@@ -22,7 +22,7 @@ public class Hmm {
         
         StaticTypeCheck staticTypeCheck = new StaticTypeCheck();
         
-        staticTypeCheck.checkProgram(prog);
+        //staticTypeCheck.checkProgram(prog);
         
         prog.display();
         

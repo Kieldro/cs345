@@ -24,12 +24,12 @@ public class Util
     */
     public static MyClass findClass(List<MyClass> classes, String name) 
     {
-	for (MyClass c: classes) {
-	    if (c.getName().equals(name)) {
-		return c;
-	    }
-	} 
-	return null;
+		for (MyClass c: classes) {
+		    if (c.getName().equals(name)) {
+		    	return c;
+		    }
+		}
+		return null;
     }
     
     
@@ -83,6 +83,7 @@ public class Util
      *           
      * @param v2 Second operand. Must NEVER be null.
      */
+    
     public static Value applyBinary (Binary bin, Value v1, Value v2)
         throws InterpreterRuntimeError
     {

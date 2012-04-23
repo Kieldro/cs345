@@ -1085,7 +1085,8 @@ public class AbstractSyntax {
         private Statement thenbranch, elsebranch;
 
         // elsebranch == null means "if... then"
-
+        
+        // constructor: initializes class variables
         public Conditional(Expression t, Statement tp, Statement ep) {
             test = t;
             thenbranch = tp;
@@ -1434,7 +1435,7 @@ public class AbstractSyntax {
             GLOBAL,
             LOCAL,
             LAMBDA, 
-	    INSTANCE
+            INSTANCE
         };
         
         // Variable = String id
@@ -1917,6 +1918,61 @@ public class AbstractSyntax {
         }
     }
     */
+    
+    // added by Ian
+    public static class Ternary extends Expression {
+        private Operator op;
+        private int lineNum;
+        private Expression cond, term1, term2;
+
+        public Ternary(OpTokenPair opNum, Expression cond, Expression l, Expression r) {
+        	this.lineNum = opNum.getLineNum();
+            op = opNum.getOp();
+            this.cond = cond;		// condition
+            term1 = l;
+            term2 = r;
+        } // end of Ternary constructor
+
+        public void display(int level) {
+            super.display(level);
+            cond.display(level + 1);
+            op.display(level + 1);
+            term1.display(level + 1);
+            term2.display(level + 1);
+        }
+
+        public Operator getOp() {
+            return op;
+        }
+        
+        /**
+         * This is needed when we convert from generic 
+         * operators into the specfic ones.
+         */
+        // mutators
+        public void setOp(Operator op) {
+        	this.op = op;
+        }
+        
+        // accessors
+        public Expression getCond() {
+            return cond;
+        }
+
+        public Expression getTerm1() {
+            return term1;
+        }
+
+        public Expression getTerm2() {
+            return term2;
+        }
+        
+        @Override
+        public int getLineNum()
+        {
+        	return lineNum;
+        }
+    }
 
     public static class Binary extends Expression {
         // Binary = Operator op; Expression term1, term2
@@ -2038,6 +2094,7 @@ public class AbstractSyntax {
     }
 
     public static enum Operator {
+        TER("?"),
         AND("&&"), 
         OR("||"),
 

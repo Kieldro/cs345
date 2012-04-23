@@ -19,7 +19,6 @@ public class Interpreter {
     private Value[] stack;
     private Variable[] debugStack;
     private int basePtr;
-
     private Program prog;
 
     // Avoid passing id down caller chain!
@@ -352,6 +351,15 @@ public class Interpreter {
             Value val2 = runExpression(bin.getTerm2());
             return Util.applyBinary(bin, val1, val2);
         }
+        // added by Ian
+        if (exp instanceof Ternary) {
+            Ternary ter = (Ternary) exp;		// cast
+            BoolValue cond = (BoolValue)runExpression(ter.getCond() );
+            Value val1 = runExpression(ter.getTerm1() );		// eager evaluation
+            Value val2 = runExpression(ter.getTerm2() );		// eager evaluation
+            
+            return cond.boolValue() ? val1 : val2;
+        }
 
         if (exp instanceof ListTupleReference) {
             ListTupleReference ref = (ListTupleReference)exp;
@@ -395,7 +403,7 @@ public class Interpreter {
             } else if (call.getFunction() != null) {
                 return callRealFunction(call, args);
 	    } else {
-                LambdaValue lambdaVal;
+	    	LambdaValue lambdaVal;
                 String name;
                 if (call.getLambda() != null) {
                     // If the call contains the Lambda, create the Lambda value
@@ -405,20 +413,19 @@ public class Interpreter {
                 } else {
                     // Fetch the Lambda value from the Variable:
                     Value val = getVarValue(call.getVar());
-		    if(val instanceof FuncArgValue){ //added later
-			FuncArgValue newVal = (FuncArgValue)val;
-			Function methodToCall = Util.findFunction(prog.getFunctions(), newVal.getMethodName());
-			//did not check if parameters and return value match...should give runtime errors if there is a mismatch
-			//call.setFunction(methodToCall, 0);
-			call.setFunctWithoutOffset(methodToCall);
-			return callRealFunction(call, args);
-	 	    }
-                    else if (val instanceof LambdaValue == false) {
-                        throw new InterpreterRuntimeError(
-                                call.getLineNum(), EXPECTING_LAMBDA, val); //added later - this is what's causing the runtime error
-                    }
-                    lambdaVal = (LambdaValue)val;
-                    name = call.getVar().getName();
+				    if(val instanceof FuncArgValue){ //added later
+						FuncArgValue newVal = (FuncArgValue)val;
+						Function methodToCall = Util.findFunction(prog.getFunctions(), newVal.getMethodName());
+						//did not check if parameters and return value match...should give runtime errors if there is a mismatch
+						//call.setFunction(methodToCall, 0);
+						call.setFunctWithoutOffset(methodToCall);
+						return callRealFunction(call, args);
+			 	    }else if (val instanceof LambdaValue == false) {
+			 	    	throw new InterpreterRuntimeError(
+			 	    		call.getLineNum(), EXPECTING_LAMBDA, val); //added later - this is what's causing the runtime error
+		            }
+				    	lambdaVal = (LambdaValue)val;
+				    	name = call.getVar().getName();
                 }
                 
                 // Ok, we should have a Lambda Value by now. 
@@ -442,7 +449,7 @@ public class Interpreter {
                 lambdaStack.remove(lambdaStack.size() - 1);
 
                 return result;            
-            }
+	    	}
         }
 	
 		    // added later by MST - to run the first class function
@@ -464,6 +471,7 @@ public class Interpreter {
 		            "Found invalid expression class: " + exp.getClass());
     }
 
+    // function initLambdaContext
     public void initLambdaContext(Expression exp, LambdaValue inOutCtx) 
         throws InterpreterRuntimeError 
     {

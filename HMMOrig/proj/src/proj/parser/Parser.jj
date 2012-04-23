@@ -449,12 +449,13 @@ LambdaDef lambdaDef() :
 
 // expression <- disjunction ? disjunction : disjunction
 Expression expression() :
-{ Expression e0, e1, e2, current = null; Token t; Operator o = Operator.OR; }
+{ Expression e0, e1, e2, current = null; Token t; Operator o = Operator.TER; }
 {
 	{if(DEBUG)System.out.println("expression() called.");}
    e0 = disjunction() { current = e0; }
-	[<QMARK> e1 = disjunction() <COLON> e2 = disjunction() 
-   	{current = e1;}
+   	// ternary feature added by Ian
+	[t= <QMARK> e1 = disjunction() <COLON> e2 = disjunction() 
+   	{current = new Ternary(new OpTokenPair(o, t), e0, e1, e2);}
 	]
     { return current; }
 }
