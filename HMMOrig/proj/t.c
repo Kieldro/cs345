@@ -1,17 +1,9 @@
-/*
-	Multiline test
-	works
-*/
-
 int main () {
-	int a;
-	a = 2;
+	int x = 0;
 	
-	a + = 2+1;
+	x = true ? 1 : 2;
 	
-	println("a = ", a);
-	a -= 1;
-	println("a = ", a);
+	println("x = ", x);
 	
 	return 0;
 }

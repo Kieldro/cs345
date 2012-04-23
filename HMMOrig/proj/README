@@ -9,6 +9,7 @@ execute: source hmm.sh factorial.c
 IMPLEMENTED FEATURES:
 	compound assignment: +=, -=, *=, /=
 	multiline comments
+	debugging output in parser
 
 TO DO:
 implement:

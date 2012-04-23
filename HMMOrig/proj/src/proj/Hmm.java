@@ -9,7 +9,7 @@ import proj.parser.Parser;
 import proj.parser.ParseException;
 
 public class Hmm {
-
+	public static final boolean DEBUG = true;		// set to true for debug output
     public static void main(String args[]) throws ParseException, IOException, InterpreterRuntimeError {
         // If there is a command line argument, interpret it as a stdin.
         InputStream inStream = System.in;
@@ -18,7 +18,7 @@ public class Hmm {
         }
 
         Parser parser = new Parser(inStream);
-        Program prog = parser.Program();
+        Program prog = parser.Program(DEBUG);
         
         StaticTypeCheck staticTypeCheck = new StaticTypeCheck();
         
@@ -29,7 +29,7 @@ public class Hmm {
         if (staticTypeCheck.getErrLogger().hasErrors() ) {
             System.err.println("ABORTING EXECUTION DUE TO THE ERRORS");
         } else {
-            Interpreter interpreter = new Interpreter(true);
+            Interpreter interpreter = new Interpreter(DEBUG);
             interpreter.runProgram(prog);
         }
 

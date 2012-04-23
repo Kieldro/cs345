@@ -15,16 +15,16 @@ PARSER_BEGIN(Parser)
 	import proj.AbstractSyntax;
 
 	public class Parser {
-
 		private Type   curTopLevelType;
 		private Token  curTopLevelToken;
+		public static boolean DEBUG = false;
 	}
 
 PARSER_END(Parser)
 
 SKIP :
 {
-    < SPACE : " ">
+	< SPACE : " ">
   | "\t"
   | "\n"
   | "\r"
@@ -35,13 +35,13 @@ SKIP :
 <INSIDE_COMMENT>
 SKIP:
 {
-	  <"*/">: DEFAULT
-	| <~[]>		// skip everything
+	<"*/">: DEFAULT
+  | <~[]>		// skip everything
 }
 
 TOKEN:
 {
-    < IF:    "if" >
+	< IF:    "if" >
   | < IFF:   "iff" >
   | < ELSE:  "else" >
   | < WHILE: "while" >
@@ -60,42 +60,49 @@ TOKEN:
   | < TRUE:  "true" >
   | < FALSE: "false" >
   | < RETURN:  "return" >
+}
 
-  | < AND_OP:   "&&" >
-  | < OR_OP:    "||" >
-  | < LPAREN:   "(" >
-  | < RPAREN:   ")" >
-  | < LBRACE:   "[" >
-  | < RBRACE:   "]" >
-  | < LCURLY:   "{" >
-  | < RCURLY:   "}" >
-  | < SEMI:     ";" >
+// operator tokens in ascending order of precedence
+TOKEN:
+{
+	< QMARK:	"?" >		// ternary operator
   | < COLON:    ":" >
+  | < OR_OP:    "||" >
+  | < AND_OP:   "&&" >
   | < EQ_OP:    "==" >
   | < NE_OP:    "!=" >
   | < LE_OP:    "<=" >
   | < GE_OP:    ">=" >
-  | < ELEM:     "<-" >
-  | < QMARK:	"?" >
-  | < PIPE:     "|" >
-  | < EQUALS:   "=" >
   | < LT_OP:    "<" >
   | < GT_OP:    ">" >
-  | < MINUS:    "-" >
   | < PLUS:     "+" >
+  | < MINUS:    "-" >
   | < MULT:     "*" >
   | < DIV:      "/" >
   | < PRCNT:    "%" >
   | < BANG:     "!" >
+  | < DOT:      "." >
+  | < LPAREN:   "(" >
+  | < RPAREN:   ")" >
+}
+
+TOKEN:
+{
+	< LBRACE:   "[" >
+  | < RBRACE:   "]" >
+  | < LCURLY:   "{" >
+  | < RCURLY:   "}" >
+  | < PIPE:     "|" >
+  | < EQUALS:   "=" >
+  | < ELEM:     "<-" >
+  | < SEMI:     ";" >
   | < COMMA:    "," >
   | < SQUOTE:   "'" >
-  | < DOT:      "." >
   | < LAMBDA:   "(\\">
   | < MAP_TO:   "->">
   | < MYCLASS:  "Class">
   | < CREATE:   "create">
   | < SIGN:     "#">
-  
 }
 
 TOKEN:  /* Literals */
@@ -118,7 +125,7 @@ TOKEN:
 // We are generously allowing the global variables to live.
 // Even though they deserve to DIE!
 
-Program Program() :
+Program Program(boolean d) :
 {List<Declaration> globals = new ArrayList<Declaration>();
  List<Declaration> decList;
  List<Function> funcList = new ArrayList<Function>();
@@ -126,6 +133,8 @@ Program Program() :
  List<MyObject> objList = new ArrayList<MyObject>();
  Function f; Token t; MyClass c; MyObject o;}
 {
+	{DEBUG = d;
+   	if(DEBUG)System.out.println("Parser debugging output ENABLED.");}
    (
         (curTopLevelType = retType() curTopLevelToken = <IDENTIFIER>
         	(
@@ -303,6 +312,12 @@ Type varBaseType() :
   | <STRING> { return BaseType.STRING; }
 }
 
+Block block() :
+{ List<Statement> ss;}
+{  
+   <LCURLY> ss = statements() <RCURLY> { return new Block(ss); }
+}
+
 List<Statement> statements() :
 { Statement s; List<Statement> statements = new ArrayList<Statement>();}
 {
@@ -327,14 +342,6 @@ Statement statement() :
 
 }
 
-Expression ternary():
-{Expression e;}
-{
-	
-	
-	{e = null; return e;}
-}
-
 /*
 * added by MST
 * allows you to call a method in a class without assigning a return value to a variable 
@@ -346,19 +353,13 @@ Expression objFuncWithoutAssignment() :
   {return e;}
 }
 
-Block block() :
-{ List<Statement> ss;}
-{  
-   <LCURLY> ss = statements() <RCURLY> { return new Block(ss); }
-}
-
 Assignment assignment() :
 { Token id ; LValue target;  Expression e; OpTokenPair o;}
 {
    id = <IDENTIFIER> { target = new Variable(id); }
         [<LBRACE> e = expression() <RBRACE> { target = new ListTupleReference(id, e);}]
         (<EQUALS>  e = expression()
-  	     | (o = addOp() | o = mulOp () )		// added by Ian
+  	     | (o = addOp() | o = mulOp () )		// compound assignment added by Ian
   	     	<EQUALS> e = expression()
   	     	{e = new Binary(o, (Expression)target, e );}
   	    )
@@ -367,7 +368,7 @@ Assignment assignment() :
 }
 
 Conditional ifStatement() :
-{ Expression e; Statement sIf = null, sElse = null; Conditional c;}
+{ Expression e; Statement sIf = null, sElse = null;}
 {  
     <IF> <LPAREN> e = expression() <RPAREN> sIf = block() 
     [ <ELSE> (sElse = ifStatement() | sElse = block()) ]
@@ -387,19 +388,6 @@ ForEach forEach() :
     }
 }
 
-
-// UNFINISHED
-/*
-ForLoop forloop() :
-{ Expression e, listValue; Block b;}
-{
-	<FOR> <LPAREN> e = expression() <ELEM> listValue = expression() <RPAREN> b = block()
-    {
-    	Generator g = AbstractSyntax.constructGenerator(e, listValue);
-    	return new ForLoop(g, b);
-    }
-}
-*/
 Loop whileStatement() :
 { Expression e; Loop l; Block s;}
 {  
@@ -448,26 +436,6 @@ Return returnStatement() :
    t = <RETURN> [e = expression()] {rs = new Return(t.beginLine, curTopLevelToken.image, e); } <SEMI> { return rs; }
 }
 
-// expression <- expression ? expression : expression
-Expression expression() :
-{ Expression e1, e2, current = null; Token t; Operator o = Operator.OR; }
-{
-   e1 = disjunction() { current = e1; }
-/*   | (expression() <QMARK> expression() <COLON> expression() 
-   	{}
-   )
- */   { return current; }
-}
-
-Expression disjunction() :
-{ Expression e1, e2, current = null; Token t; Operator o = Operator.OR; }
-{
-   e1 = conjunction() { current = e1; }
-   ( t = <OR_OP> e2 = conjunction() { current = new Binary(new OpTokenPair(o, t), current, e2); }
-   )* { return current; }
-}
-
-
 LambdaDef lambdaDef() :
 {Token id; Token lambda; Expression e; List<Token> paramNames = new ArrayList<Token>();}
 {
@@ -479,6 +447,25 @@ LambdaDef lambdaDef() :
 	}
 }
 
+// expression <- disjunction ? disjunction : disjunction
+Expression expression() :
+{ Expression e0, e1, e2, current = null; Token t; Operator o = Operator.OR; }
+{
+	{if(DEBUG)System.out.println("expression() called.");}
+   e0 = disjunction() { current = e0; }
+	[<QMARK> e1 = disjunction() <COLON> e2 = disjunction() 
+   	{current = e1;}
+	]
+    { return current; }
+}
+
+Expression disjunction() :
+{ Expression e1, e2, current = null; Token t; Operator o = Operator.OR; }
+{
+   e1 = conjunction() { current = e1; }
+   ( t = <OR_OP> e2 = conjunction() { current = new Binary(new OpTokenPair(o, t), current, e2); }
+   )* { return current; }
+}
 
 Expression conjunction() :
 { Expression e1, e2, current = null; Token t; Operator o = Operator.AND; }
