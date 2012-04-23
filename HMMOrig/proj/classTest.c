@@ -10,7 +10,7 @@ Class Test{
   }
 
   int fun (int match){
-    println("The result from method fun is: ");
+    println("The result from method fun() is: ");
     println(myX +myY + match);
     return myX + myY + match;
     
@@ -25,8 +25,9 @@ int main() {
 }
 
 int foo(){
-   int temp = 10;
-   Test oneObj = create Test(20, 4);
+   int temp = 2;
+   Test oneObj = create Test(7, 11);
+   
    temp = Test.oneObj.fun(temp);
    return temp;
 }

@@ -1,4 +1,5 @@
 // modified by Melissa Olson, Tanmaya Godbole, and Sriratana Sutasirisap - Spring 2011
+// modified by Ian Buitrago - Spring 2012
 
 options {
 STATIC = false ;
@@ -23,11 +24,19 @@ PARSER_END(Parser)
 
 SKIP :
 {
-    " "
+    < SPACE : " ">
   | "\t"
   | "\n"
   | "\r"
-  | <"//" (~["\n","\r"])* ("\n"|"\r")> 
+  | <"//" (~["\n","\r"])* ("\n"|"\r")>		// single line comments
+  | <"/*">: INSIDE_COMMENT		// multiline
+}
+
+<INSIDE_COMMENT>
+SKIP:
+{
+	  <"*/">: DEFAULT
+	| <~[]>		// skip everything
 }
 
 TOKEN:
@@ -46,6 +55,7 @@ TOKEN:
   | < TUPLE: "tuple" >
   | < OBJECT: "object" >
   | < STRING: "string" >
+  | < EXTEND: "extends" >
   
   | < TRUE:  "true" >
   | < FALSE: "false" >
@@ -60,11 +70,13 @@ TOKEN:
   | < LCURLY:   "{" >
   | < RCURLY:   "}" >
   | < SEMI:     ";" >
+  | < COLON:    ":" >
   | < EQ_OP:    "==" >
   | < NE_OP:    "!=" >
   | < LE_OP:    "<=" >
   | < GE_OP:    ">=" >
   | < ELEM:     "<-" >
+  | < QMARK:	"?" >
   | < PIPE:     "|" >
   | < EQUALS:   "=" >
   | < LT_OP:    "<" >
@@ -116,11 +128,11 @@ Program Program() :
 {
    (
         (curTopLevelType = retType() curTopLevelToken = <IDENTIFIER>
-        (
+        	(
             decList = restOfGlobalDec() {globals.addAll(decList); } 
-            | f = restOfFunction()      { funcList.add(f); }
-        ))
-	|c = myClass() {classList.add(c);}
+            | f = restOfFunction()      { funcList.add(f); })
+        )
+		|c = myClass() {classList.add(c);}
         |o = obj() {objList.add(o);}
         
    )* 
@@ -136,7 +148,7 @@ MyClass myClass() :
     <MYCLASS> className = <IDENTIFIER> <LCURLY>
     
     (curTopLevelType = retType() curTopLevelToken = <IDENTIFIER>
-    (
+    ( 
             decList = restOfGlobalDec() {globals.addAll(decList); } 
             | f = restOfFunction()      { funcList.add(f); }
     ))* 
@@ -158,7 +170,7 @@ Constructor constructor() :
   [ d = parameter() {args.add(d);} (<COMMA> d = parameter() {args.add(d);})*]
   <RPAREN> b = block()
   {
-  return new Constructor(consName, args, b);
+  return new Constructor(consName, args, b); 
   }
 }
 
@@ -203,6 +215,7 @@ Function restOfFunction() :
 	}
 }
 
+// eg = 2+3; | , x,  y =2, z;
 List<Declaration> restOfGlobalDec() :
 {Expression e, firstOne = null; Token id; List<Declaration> decls = new ArrayList<Declaration>();}
 {
@@ -269,9 +282,11 @@ Type varType() :
 {Type t; List<Type> argTypes = new ArrayList<Type>();}
 {
 	  t = varBaseType() { return t; }
-	| LOOKAHEAD(3) <LPAREN> (LOOKAHEAD(2) t = varType() <COMMA> {argTypes.add(t);} )* t = retType() <RPAREN> {return new FunctionType(argTypes, t); } //type: tuple
-        | <LPAREN> (LOOKAHEAD(2) t = varType() <MAP_TO> {argTypes.add(t);} )* t = retType() <RPAREN> { return new FunctionType(argTypes, t, false); } //a new type syntax that describe first class functions
-}
+	| LOOKAHEAD(3) <LPAREN> (LOOKAHEAD(2) t = varType() <COMMA> {argTypes.add(t);} )*
+		t = retType() <RPAREN> {return new FunctionType(argTypes, t); } //type: tuple
+    | <LPAREN> (LOOKAHEAD(2) t = varType() <MAP_TO> {argTypes.add(t);} )*
+    	t = retType() <RPAREN> { return new FunctionType(argTypes, t, false); } //a new type syntax that describe first class functions
+} 
 
 /**
  * A Base Type, except for the 'void'
@@ -312,6 +327,14 @@ Statement statement() :
 
 }
 
+Expression ternary():
+{Expression e;}
+{
+	
+	
+	{e = null; return e;}
+}
+
 /*
 * added by MST
 * allows you to call a method in a class without assigning a return value to a variable 
@@ -330,12 +353,16 @@ Block block() :
 }
 
 Assignment assignment() :
-{ Token id ; LValue target;  Expression e;}
+{ Token id ; LValue target;  Expression e; OpTokenPair o;}
 {
-   id = <IDENTIFIER> ( 
-            <LBRACE> e = expression() <RBRACE> { target = new ListTupleReference(id, e);}
-           | { target = new Variable(id); }
-       ) <EQUALS>  e = expression() <SEMI> 
+   id = <IDENTIFIER> { target = new Variable(id); }
+        [<LBRACE> e = expression() <RBRACE> { target = new ListTupleReference(id, e);}]
+        (<EQUALS>  e = expression()
+  	     | (o = addOp() | o = mulOp () )		// added by Ian
+  	     	<EQUALS> e = expression()
+  	     	{e = new Binary(o, (Expression)target, e );}
+  	    )
+  	     <SEMI> 
       { return new Assignment(target, e);}
 }
 
@@ -421,7 +448,18 @@ Return returnStatement() :
    t = <RETURN> [e = expression()] {rs = new Return(t.beginLine, curTopLevelToken.image, e); } <SEMI> { return rs; }
 }
 
+// expression <- expression ? expression : expression
 Expression expression() :
+{ Expression e1, e2, current = null; Token t; Operator o = Operator.OR; }
+{
+   e1 = disjunction() { current = e1; }
+/*   | (expression() <QMARK> expression() <COLON> expression() 
+   	{}
+   )
+ */   { return current; }
+}
+
+Expression disjunction() :
 { Expression e1, e2, current = null; Token t; Operator o = Operator.OR; }
 {
    e1 = conjunction() { current = e1; }

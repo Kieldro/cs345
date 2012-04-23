@@ -26,10 +26,10 @@ public class Hmm {
         
         prog.display();
         
-        if (staticTypeCheck.getErrLogger().hasErrors()) {
+        if (staticTypeCheck.getErrLogger().hasErrors() ) {
             System.err.println("ABORTING EXECUTION DUE TO THE ERRORS");
         } else {
-            Interpreter interpreter = new Interpreter(false);
+            Interpreter interpreter = new Interpreter(true);
             interpreter.runProgram(prog);
         }
 

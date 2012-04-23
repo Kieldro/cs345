@@ -23,7 +23,7 @@ PARSER_END(hello)
 SKIP: {
 	  " "		// ignore spaces
 	| "\t"
-	| <"\n">
+	| "\n"
 	| "\r"
 	| "\r\n"
 	| <"//" (~["\n","\r"])* ("\n"|"\r")>		// single line comments

@@ -445,23 +445,23 @@ public class Interpreter {
             }
         }
 	
-        // added later by MST - to run the first class function
-	if(exp instanceof FuncArg){
-		FuncArg funcArg = (FuncArg) exp;
-	        FuncArgValue val = new FuncArgValue(funcArg.getName(), funcArg.getArgs());
-		return val; 
-	}
+		    // added later by MST - to run the first class function
+		if(exp instanceof FuncArg){
+			FuncArg funcArg = (FuncArg) exp;
+			    FuncArgValue val = new FuncArgValue(funcArg.getName(), funcArg.getArgs());
+			return val; 
+		}
 	
-        // added later by MST - to run the object function
-	if (exp instanceof ObjFunction) {
-	    ObjFunction of = (ObjFunction)exp;
-	    List<Expression> unevaluated = of.getArgs();
-	    List<Value> args = evaluateExpList(unevaluated);
-	    return callOOFunction(of, args);
-	}
+		    // added later by MST - to run the object function
+		if (exp instanceof ObjFunction) {
+			ObjFunction of = (ObjFunction)exp;
+			List<Expression> unevaluated = of.getArgs();
+			List<Value> args = evaluateExpList(unevaluated);
+			return callOOFunction(of, args);
+		}
 	
-        throw new UnsupportedOperationException(
-                "Found invalid expression class: " + exp.getClass());
+		    throw new UnsupportedOperationException(
+		            "Found invalid expression class: " + exp.getClass());
     }
 
     public void initLambdaContext(Expression exp, LambdaValue inOutCtx) 
