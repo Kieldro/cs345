@@ -381,10 +381,15 @@ Conditional ifStatement() :
 }
 
 ForEach forEach() :
-{ Expression e, listValue; Block b;}
+{ Expression e, listValue; Block b; Statement s;}
 {
 	<FOR> <LPAREN> e = expression() <ELEM> listValue = expression() <RPAREN>
-		b = block()
+		(b = block()
+		// bracketless single line option
+		| s = statement()		// added by Ian
+		{List<Statement> a = new ArrayList<Statement>(); a.add(s);
+			b = new Block(a);}
+		)
     {
     	Generator g = AbstractSyntax.constructGenerator(e, listValue);
     	return new ForEach(g, b);
@@ -392,10 +397,16 @@ ForEach forEach() :
 }
 
 Loop whileStatement() :
-{ Expression e; Loop l; Block s;}
+{ Expression e; Loop l; Block b; Statement s;}
 {  
-   <WHILE> <LPAREN> e = expression() <RPAREN> s = block()
-   { return new Loop(e, s); }
+   <WHILE> <LPAREN> e = expression() <RPAREN>
+		(b = block()
+		// single bracketless line option
+		| s = statement()		// added by Ian
+		{List<Statement> a = new ArrayList<Statement>(); a.add(s);
+			b = new Block(a);}
+		)
+   { return new Loop(e, b); }
 }
 
 Expression callStatement() :
@@ -450,7 +461,8 @@ LambdaDef lambdaDef() :
 	}
 }
 
-// expression <- disjunction ? disjunction : disjunction
+// expression <- disjunction [? disjunction : disjunction]
+// added by Ian
 Expression expression() :
 { Expression e0, e1, e2, current = null; Token t; Operator o = Operator.TER; }
 {
@@ -463,6 +475,7 @@ Expression expression() :
     { return current; }
 }
 
+// disjunction <- conjunction (|| conjunction)*
 Expression disjunction() :
 { Expression e1, e2, current = null; Token t; Operator o = Operator.OR; }
 {
@@ -472,6 +485,7 @@ Expression disjunction() :
    )* { return current; }
 }
 
+// conjunction <- equality (|| equality)*
 Expression conjunction() :
 { Expression e1, e2, current = null; Token t; Operator o = Operator.AND; }
 {

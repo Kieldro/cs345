@@ -13,7 +13,7 @@ Class Bar{
 int main(){
 	Bar b = create Bar(2);
 	
-	int z;
+//	int z;		// BUG this declaration after the class instance causes problems with the stack
 	
 	Bar.b.getX();
 	println("b.x = ", 0);

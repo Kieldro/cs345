@@ -1940,10 +1940,6 @@ public class AbstractSyntax {
             term1.display(level + 1);
             term2.display(level + 1);
         }
-
-        public Operator getOp() {
-            return op;
-        }
         
         /**
          * This is needed when we convert from generic 
@@ -1955,23 +1951,13 @@ public class AbstractSyntax {
         }
         
         // accessors
-        public Expression getCond() {
-            return cond;
-        }
-
-        public Expression getTerm1() {
-            return term1;
-        }
-
-        public Expression getTerm2() {
-            return term2;
-        }
+        public Expression getCond() {return cond;}
+        public Expression getTerm1() {return term1;}
+        public Expression getTerm2() {return term2;}
+        public Operator getOp() {return op;}
         
         @Override
-        public int getLineNum()
-        {
-        	return lineNum;
-        }
+        public int getLineNum() {return lineNum;}
     }
 
     public static class Binary extends Expression {

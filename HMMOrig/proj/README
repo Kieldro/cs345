@@ -1,25 +1,32 @@
-How to run on CS machines:
-
-run: source setEnv.sh
-or add these line to .bashrc: export JAVACC_HOME=/usr/share/java ;
-							export JAVA_HOME=/usr/lib/jvm/java-6-openjdk
-cd into proj folder and run: ant clean; ant
-execute: source hmm.sh factorial.c
+Ian Buitrago
+ib
+4-24-2012
+CS 345 Project
+Hmm++ with extra features/improvements
 
 IMPLEMENTED FEATURES:
-	compound assignment: +=, -=, *=, /=
 	ternary operator
+	compound assignment: +=, -=, *=, /=
+	1 line (bracketless) loops
 	multiline comments
-	comments/indention
+	comments/indention/refactor
 	debugging output in parser/interpreter
 
 TO DO:
 implement:
 	- inheritance/interfaces/overloading
 	- for loops
-	- 1 line (bracketless) loops/if/else statements
 	- void type functions/ required return statement for main
 	- increment operators
-	
+fix:
+	- declaration bug after object creation
+How to run on CS machines:
+
+run: source setEnv.sh
+or add these line to .bashrc: export JAVACC_HOME=/usr/share/java ;
+							export JAVA_HOME=/usr/lib/jvm/java-6-openjdk
+cd into proj folder and run: ant clean; ant
+execute: source hmm.sh ternary.c
+
 STATUS:
 	Some features implemented

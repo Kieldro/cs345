@@ -1,13 +1,8 @@
-/*
-	Multiline test
-	works
-*/
-
 int main () {
 	int a;
 	a = 2;
 	
-	a + = 2+1;
+	a += 2+1*7;
 	
 	println("a = ", a);
 	a -= 1;

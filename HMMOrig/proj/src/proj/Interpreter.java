@@ -43,8 +43,6 @@ public class Interpreter {
             }
         }
     }
-
-    
     
     public void runProgram(Program prog)
         throws InterpreterRuntimeError
@@ -167,6 +165,7 @@ public class Interpreter {
      */
 
     public boolean runStatement(Statement s) throws InterpreterRuntimeError {
+        if(debug)System.out.println("Interpreter: runStatement() s = " + s);
         if (s instanceof Assignment) {
             Assignment ass = (Assignment) s;
 
@@ -740,10 +739,11 @@ public class Interpreter {
     public Value getVarValue(Variable var) 
         throws InterpreterRuntimeError
     {
+        if(debug)System.out.println("Interpreter: getVarValue() var = " + var);
         int address = var.getAddress();
         Value val;
 
-        switch (var.getVarType()) {
+        switch (var.getVarType() ) {
         case GLOBAL:
             val =  stack[address];
             break;
@@ -757,6 +757,7 @@ public class Interpreter {
         // added later by MST - to take care of instance variables
         case INSTANCE:
             val = stack[basePtr + address];
+            if(debug)System.out.println("Interpreter: getVarValue() stack = " + stack[basePtr + address]);
             break;
         default:
             throw new UnsupportedOperationException("Invalid Var Type: "

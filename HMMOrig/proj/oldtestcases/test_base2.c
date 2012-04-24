@@ -41,9 +41,9 @@ bool and(list lst)
 {
     bool result = true;
     for (l <- lst)
-    {
+    
         result = result || l;
-    }
+    
     return result;
 }
 
