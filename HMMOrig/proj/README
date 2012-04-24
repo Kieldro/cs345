@@ -2,24 +2,29 @@ Ian Buitrago
 ib
 4-24-2012
 CS 345 Project
-Hmm++ with extra features/improvements
+Hmm++ improved with extra features
 
 IMPLEMENTED FEATURES:
 	ternary operator
+	
+	*parser only implementations
 	compound assignment: +=, -=, *=, /=
 	1 line (bracketless) loops
 	multiline comments
+	
 	comments/indention/refactor
 	debugging output in parser/interpreter
+	wrote simple hello.jj langauge
 
 TO DO:
+fix:
+	- declaration bug after object creation
 implement:
 	- inheritance/interfaces/overloading
+	- lazy ternary eval
 	- for loops
 	- void type functions/ required return statement for main
 	- increment operators
-fix:
-	- declaration bug after object creation
 How to run on CS machines:
 
 run: source setEnv.sh

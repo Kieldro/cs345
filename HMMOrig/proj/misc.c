@@ -1,6 +1,7 @@
 /*
 	Multiline test
 	works
+	parser only implementation
 */
 int main () {
 	int x = 0;
@@ -8,9 +9,6 @@ int main () {
 	// bracketless loops
 	while(x == 0)
 		x+=1;
-	
-	//ternary
-	x = x==1 ? x-1 : x-2;
 	
 	println("x = ", x);
 	
