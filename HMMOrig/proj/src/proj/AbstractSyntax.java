@@ -576,16 +576,16 @@ public class AbstractSyntax {
         
         public FunctionType(List<Type> paramTypes, Type returnType)
         {
-	 this.paramTypes = paramTypes;
-         resultType = returnType;
-	 isLambda = true;
+			 this.paramTypes = paramTypes;
+		     resultType = returnType;
+			 isLambda = true;
         }
 
-	public FunctionType(List<Type> paramTypes, Type returnType, boolean isLambda) { //constructor added later by MST - for First class functions
-	    this.paramTypes = paramTypes;
-	    resultType = returnType;
-	    this.isLambda = isLambda;
-	}
+		public FunctionType(List<Type> paramTypes, Type returnType, boolean isLambda) { //constructor added later by MST - for First class functions
+		    this.paramTypes = paramTypes;
+		    resultType = returnType;
+		    this.isLambda = isLambda;
+		}
         
         public boolean isBase()
         {
@@ -2095,14 +2095,15 @@ public class AbstractSyntax {
 
     public static enum Operator {
         TER("?"),
+        
         AND("&&"), 
         OR("||"),
 
-        LT("<"), 
-        LE("<="), 
-        EQ("=="), 
-        NE("!="), 
-        GT(">"), 
+        LT("<"),
+        LE("<="),
+        EQ("=="),
+        NE("!="),
+        GT(">"),
         GE(">="),
         // ArithmeticOp = + | - | * | /
         PLUS("+"), 
@@ -2207,7 +2208,6 @@ public class AbstractSyntax {
         private Operator(String str) {
             this.str = str;
             isObject = (name().indexOf(SEP) < 0);
-            
         }
         
         private static boolean isBoolResult(Operator op)

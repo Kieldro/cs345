@@ -8,12 +8,13 @@ execute: source hmm.sh factorial.c
 
 IMPLEMENTED FEATURES:
 	compound assignment: +=, -=, *=, /=
+	ternary operator
 	multiline comments
-	debugging output in parser
+	comments/indention
+	debugging output in parser/interpreter
 
 TO DO:
 implement:
-	- ternary operator: type check/optokenpair
 	- inheritance/interfaces/overloading
 	- for loops
 	- 1 line (bracketless) loops/if/else statements
@@ -21,4 +22,4 @@ implement:
 	- increment operators
 	
 STATUS:
-	Trying to understand Hmm.java and parser.jj
+	Some features implemented

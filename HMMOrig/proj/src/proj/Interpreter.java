@@ -27,6 +27,7 @@ public class Interpreter {
     public Interpreter(boolean debug)
     {
         this.debug = debug;
+        if(debug)System.out.println("Interpreter debugging output ENABLED.");
         stack = new Value[STACK_SIZE];
         basePtr = 0;
         if (debug) {
@@ -191,7 +192,7 @@ public class Interpreter {
                 setVarValue(var, val);
             } else {
                 throw new UnsupportedOperationException(
-                        "Unrecognized lvalue class: " + lval.getClass());
+                		"Unrecognized lvalue class: " + lval.getClass());
             }
             return false;
         }
@@ -290,6 +291,7 @@ public class Interpreter {
         if (s instanceof Block) {
             // We just need to execute all the statements in the block; that's it:
             for (Statement subSt : ((Block)s).getMembers()) {
+            	if(debug)System.out.println("Interpreter: runStatement() subSt = " + subSt);
                 boolean result = runStatement(subSt);
                 if (result) {
                     return true;
@@ -298,15 +300,14 @@ public class Interpreter {
             return false;
         }
         // added later by MST to run the instantiation of a class
-	if (s instanceof MyObject) {
-	    MyObject obj = (MyObject)s;
-	    MyClass c = Util.findClass(prog.getClasses(), obj.getType());
-	    Constructor cons = c.getConstructor();
-	    List<Value> args = evaluateExpList(obj.getArgs());
-	    callConstructor(cons, args);
-	    return false; //dummy return
-	}
-
+		if (s instanceof MyObject) {
+		    MyObject obj = (MyObject)s;
+		    MyClass c = Util.findClass(prog.getClasses(), obj.getType());
+		    Constructor cons = c.getConstructor();
+		    List<Value> args = evaluateExpList(obj.getArgs());
+		    callConstructor(cons, args);
+		    return false; //dummy return
+		}
         /*
         if (s instanceof Skip) {
             return false;
@@ -320,12 +321,16 @@ public class Interpreter {
     private void evaluateDeclarations(List<Declaration> declarations)
         throws InterpreterRuntimeError
     {
+    	if(debug)System.out.println("Interpreter: evalutateDeclartations() called. declarations = " + declarations);
         for (Declaration decl : declarations) {
+            //if(debug)System.out.println("Interpreter: decl = " + decl);
             Value val = null;
             if (decl.getInitValue() != null) {
                 val = runExpression(decl.getInitValue());
             }
+            if(debug)System.out.println("Interpreter: val = " + val );
             setVarValue(decl.getVariable(), val);
+            //if(debug)System.out.println("Interpreter: BOOYAKASHA2");
         }
     }
 
@@ -719,8 +724,8 @@ public class Interpreter {
             stack[basePtr + address] = value;
             return;
         // added later by MST - to take care of instance variables 
-	case INSTANCE: 
-	    stack[basePtr + address] = value; 
+        case INSTANCE: 
+        	stack[basePtr + address] = value; 
             return;
         case LAMBDA:
             LambdaValue lastLambda = lambdaStack.get(lambdaStack.size() - 1);

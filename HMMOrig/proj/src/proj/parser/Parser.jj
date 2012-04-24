@@ -6,7 +6,6 @@ STATIC = false ;
 }
 
 PARSER_BEGIN(Parser)
-
 	package proj.parser;
 
 	import java.io.*;
@@ -55,7 +54,6 @@ TOKEN:
   | < TUPLE: "tuple" >
   | < OBJECT: "object" >
   | < STRING: "string" >
-  | < EXTEND: "extends" >
   
   | < TRUE:  "true" >
   | < FALSE: "false" >
@@ -101,6 +99,7 @@ TOKEN:
   | < LAMBDA:   "(\\">
   | < MAP_TO:   "->">
   | < MYCLASS:  "Class">
+  | < EXTEND: 	"extends" >
   | < CREATE:   "create">
   | < SIGN:     "#">
 }
@@ -148,6 +147,20 @@ Program Program(boolean d) :
    {
      return new Program(globals, funcList, classList, objList);
    }
+}
+
+// Type IDENT
+Function restOfFunction() : 
+{ Declaration d; Block b; List<Declaration> args = new ArrayList<Declaration>(); }
+{
+	{if(DEBUG)System.out.println("Parser: restOfFunction()");}
+	<LPAREN>
+	 [ d = parameter() {args.add(d);} (<COMMA> d = parameter() {args.add(d);})*]
+	<RPAREN>
+	b = block()
+	{
+		return new Function(curTopLevelType, curTopLevelToken, args, b);
+	}
 }
 
 MyClass myClass() :
@@ -209,19 +222,6 @@ ObjFunction objFunc():
  {
    return new ObjFunction(className, myObjName, objFunName, args);
  }
-}      
-
-// Type IDENT
-Function restOfFunction() : 
-{ Declaration d; Block b; List<Declaration> args = new ArrayList<Declaration>(); }
-{
-	<LPAREN>
-	 [ d = parameter() {args.add(d);} (<COMMA> d = parameter() {args.add(d);})*]
-	<RPAREN>
-	b = block()
-	{
-		return new Function(curTopLevelType, curTopLevelToken, args, b);
-	}
 }
 
 // eg = 2+3; | , x,  y =2, z;
@@ -256,6 +256,7 @@ Declaration parameter() :
 List<Declaration> declaration() :
 { Type t; Declaration d; List<Declaration> result = new ArrayList<Declaration>();}
 {  
+	{if(DEBUG)System.out.println("Parser: declaration()");}
    t = varType()
    d = singleVarDeclaration(t) { result.add(d); }
    ( <COMMA> d = singleVarDeclaration(t) {result.add(d); } )*
@@ -265,11 +266,13 @@ List<Declaration> declaration() :
 }
 
 Declaration singleVarDeclaration(Type type) :
-{ Token id; Expression initValue = null;}
+{ Token id; Expression initValue = null; Declaration d;}
 {
-	id = <IDENTIFIER> [ <EQUALS> initValue = expression() ]
+	(id = <IDENTIFIER> [ <EQUALS> initValue = expression() ])
 	{
-		return new Declaration(type, id, initValue);
+	   	d = new Declaration(type, id, initValue);
+	   	if(DEBUG)System.out.println("Parser: singleVarDeclaration returning = " + d);
+		return d;
 	}
 }
 
@@ -451,7 +454,7 @@ LambdaDef lambdaDef() :
 Expression expression() :
 { Expression e0, e1, e2, current = null; Token t; Operator o = Operator.TER; }
 {
-	{if(DEBUG)System.out.println("expression() called.");}
+	{if(DEBUG)System.out.println("Parser: expression() called.");}
    e0 = disjunction() { current = e0; }
    	// ternary feature added by Ian
 	[t= <QMARK> e1 = disjunction() <COLON> e2 = disjunction() 
@@ -463,6 +466,7 @@ Expression expression() :
 Expression disjunction() :
 { Expression e1, e2, current = null; Token t; Operator o = Operator.OR; }
 {
+	//{if(DEBUG)System.out.println("Parser: disjunction()");}
    e1 = conjunction() { current = e1; }
    ( t = <OR_OP> e2 = conjunction() { current = new Binary(new OpTokenPair(o, t), current, e2); }
    )* { return current; }
@@ -573,7 +577,7 @@ Expression primary() :
 * recognizes a the syntax for first class functions 
 */ 
 Expression funcArg() :
-{Token id; Declaration dec = null; List<Declaration> args= new ArrayList<Declaration>(); }
+{Token id; Declaration dec = null; List<Declaration> args = new ArrayList<Declaration>(); }
 {
 	id = <IDENTIFIER> <LPAREN> (dec = parameter() {args.add(dec);})* <RPAREN> 
         {return new FuncArg(id, args);}

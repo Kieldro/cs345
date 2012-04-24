@@ -39,14 +39,14 @@ public class StaticTypeCheck
     private Program p;
     
     void checkProgram(Program p) {
-	this.p = p;
-    	symbolTable = new SymbolTable(logger, p);
+		this.p = p;
+	    symbolTable = new SymbolTable(logger, p);
+		
+		for(MyClass myClass : p.getClasses()) { //added by MST - adds copy of the class onto the symbol table
+			symbolTable.addGlobalClass(myClass);
+		}
 	
-	for(MyClass myClass : p.getClasses()) { //added by MST - adds copy of the class onto the symbol table
-		symbolTable.addGlobalClass(myClass);
-        }
-
-    	for (Function funct : p.getFunctions()) { 
+    	for (Function funct : p.getFunctions()) {
     		checkFunction(funct);
     	}
     }
@@ -62,13 +62,13 @@ public class StaticTypeCheck
     * and adds their scopes to the symbol table
     */ 
     void checkClass(MyObject obj, String className) {  
-        MyClass c = symbolTable.getClass(className);
-	Constructor cons = c.getConstructor();
-	checkConstructor(obj, cons);
-	
-	for(Function funct : c.getFunctions()) {
-		checkOOFunction(obj, funct);
-	} 
+	    MyClass c = symbolTable.getClass(className);
+		Constructor cons = c.getConstructor();
+		checkConstructor(obj, cons);
+		
+		for(Function funct : c.getFunctions()) {
+			checkOOFunction(obj, funct);
+		} 
     }
     
 
@@ -555,15 +555,15 @@ private Type checkOOExpression(MyObject obj, Expression exp)
 	            return val.getType();
 	        }
 		
-		/*
-		* added by MST
-		* sees a first class function - does not currently do anything 
-		* at compile time
-		*/
-		if (exp instanceof FuncArg){ 
-		   return null;
-		}
-	
+			/*
+			* added by MST
+			* sees a first class function - does not currently do anything 
+			* at compile time
+			*/
+			if (exp instanceof FuncArg){
+			   return null;
+			}
+		
 	        if (exp instanceof Variable) {
 	        	return processVariableUse((Variable)exp);
 	        }
@@ -574,6 +574,10 @@ private Type checkOOExpression(MyObject obj, Expression exp)
 	
 	        if (exp instanceof Binary) {
 	        	return processBinary((Binary)exp);
+	        }
+	
+	        if (exp instanceof Ternary) {
+	        	return processTernary((Ternary)exp);
 	        }
 	
 	        if (exp instanceof ListTupleReference) {
@@ -588,16 +592,16 @@ private Type checkOOExpression(MyObject obj, Expression exp)
 	        	checkExpressions(lte.getMembers());
 	        	return (lte.isTuple()) ? BaseType.TUPLE : BaseType.LIST;
 	        }
-	
-	        if (exp instanceof ListComprehension) {            
+		
+	        if (exp instanceof ListComprehension) {
 	            ListComprehension listComp = (ListComprehension)exp;
 	            
-                // We are prohibiting List Comprehensions from appearing inside
+	            // We are prohibiting List Comprehensions from appearing inside
 	            // Lambda, because it messes up the whole Variable Allocation scheme
-                if (symbolTable.isInsideLambda()) {
-                    logger.error(listComp.getLineNum(), LIST_COMP_NOT_ALLOWED_IN_LAMBDA);
-                    return BaseType.LIST;
-                }
+	            if (symbolTable.isInsideLambda()) {
+	                logger.error(listComp.getLineNum(), LIST_COMP_NOT_ALLOWED_IN_LAMBDA);
+	                return BaseType.LIST;
+	            }
 	            
 	            // First, check all the genreator lists. They must NOT depend
 	            // on the any variables inside the list comprehension:
@@ -606,23 +610,23 @@ private Type checkOOExpression(MyObject obj, Expression exp)
 	            }
 	            
 	            // Then, process all the declarations:
-                for (Generator gen : listComp.getGenerators()) {
-                    symbolTable.addLocalDeclarations(gen.getDeclarations());
-                }
-                
-                // Now, verify the conditionals and the resulting expression:
-                for (Expression cond : listComp.getConditionals()) {
-                    Type condType = checkExpression(cond);
-                    if (typeMismatch(condType, BaseType.BOOL)) {
-                        logger.error(cond.getLineNum(), LIST_COMP_CONDITIONAL, condType);
-                    }
-                }
-                
-                checkExpression(listComp.getTarget());
-                
-                return BaseType.LIST;
+	            for (Generator gen : listComp.getGenerators()) {
+	                symbolTable.addLocalDeclarations(gen.getDeclarations());
+	            }
+	            
+	            // Now, verify the conditionals and the resulting expression:
+	            for (Expression cond : listComp.getConditionals()) {
+	                Type condType = checkExpression(cond);
+	                if (typeMismatch(condType, BaseType.BOOL)) {
+	                    logger.error(cond.getLineNum(), LIST_COMP_CONDITIONAL, condType);
+	                }
+	            }
+	            
+	            checkExpression(listComp.getTarget());
+	            
+	            return BaseType.LIST;
 	        }
-	
+		
 	        if (exp instanceof LambdaDef) {
 	            LambdaDef lambda = (LambdaDef)exp;
 	            
@@ -635,7 +639,7 @@ private Type checkOOExpression(MyObject obj, Expression exp)
 	            // The Lambda Definitions will processed by the 
 	            // Symbol Table, so we just need to go through the expression:
 	            checkExpression(lambda.getExpression());
-
+	
 	            // Once we're done, figure out the context size and finish the Lambda:
 	            int contextSize = symbolTable.endLambda(lambda);
 	            lambda.setContextSize(contextSize);
@@ -652,8 +656,8 @@ private Type checkOOExpression(MyObject obj, Expression exp)
 	        * and sets up the call to this method
 	        */
 	        if (exp instanceof ObjFunction){
-	        ObjFunction of = (ObjFunction) exp;
-	        return processOOFunction(of);
+		        ObjFunction of = (ObjFunction) exp;
+		        return processOOFunction(of);
 	        }
     	}
     	finally {
@@ -1020,10 +1024,34 @@ private Type checkOOExpression(MyObject obj, Expression exp)
     		return null;
         }
         
-        // Ok, we found out the New Op. Update and live happy ever after!
+        // Ok, we found out the New Op. Update and live happily ever after!
         bin.setOp(newOp);
         
         return (boolResult) ? BaseType.BOOL : opType;
+    }
+    
+    // added by Ian
+    private Type processTernary(Ternary ter)
+    {
+        Type type1 = checkExpression(ter.getTerm1());
+        Type type2 = checkExpression(ter.getTerm2());
+        Type type3 = checkExpression(ter.getCond());
+        
+        if (type1 == null || type2 == null) {
+        	// Error case: skip all subsequent checking.
+        	return null;
+        }
+        
+        if(type1 != type2){
+        	logger.error(ter.getLineNum(), "Ternary expressions must be of type bool ? type1 : type1.", ter.getOp(), type1, type2);
+        	return null;
+        }
+        
+        if(type3 != BaseType.BOOL){
+        	logger.error(ter.getLineNum(), "Ternary condition must be of type bool.", ter.getOp(), type1, type2);
+        	return null;
+        }
+        return type1;
     }
     
     /*

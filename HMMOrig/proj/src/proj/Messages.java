@@ -51,6 +51,5 @@ public class Messages {
     
         EXPECTING_LAMBDA         = "Expecting a value of the Lambda type, but got: \"{0}\"",
 
-	REDECLARED_MYCLASS = "Class already declared"; //added by MST
-
+		REDECLARED_MYCLASS = "Class already declared"; //added by MST
 }
